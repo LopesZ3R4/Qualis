@@ -10,11 +10,9 @@ class ApiService {
   final dbHelper = DatabaseHelper.instance;
 
   Future<void> getConferencias() async {
-    print('Starting Conferencias');
     try {
       final response = await http.get(Uri.parse('$baseUrl/qualis_conferencias_2016.json')).timeout(const Duration(seconds: 10));
       if (response.statusCode == 200) {
-        print('Fetched data from $baseUrl/qualis_conferencias_2016.json');
         Map<String, dynamic> map = jsonDecode(response.body);
         List<dynamic> data = map['data'];
         for (var item in data) {
@@ -27,19 +25,15 @@ class ApiService {
           await dbHelper.insert(qualificacao.toMap());
         }
       } else {
-        print('Failed to load data from $baseUrl/qualis_conferencias_2016.json');
       }
     } catch (e) {
-      print('An error occurred while fetching data: $e');
     }
   }
 
   Future<void> getPeriodico() async {
-    print('Starting Periodicos');
     try {
       final response = await http.get(Uri.parse('$baseUrl/periodico.json')).timeout(const Duration(seconds: 10));
       if (response.statusCode == 200) {
-        print('Fetched data from $baseUrl/periodico.json');
         Map<String, dynamic> map = jsonDecode(response.body);
         List<dynamic> data = map['data'];
         for (var item in data) {
@@ -52,19 +46,15 @@ class ApiService {
           await dbHelper.insert(qualificacao.toMap());
         }
       } else {
-        print('Failed to load data from $baseUrl/periodico.json');
       }
     } catch (e) {
-      print('An error occurred while fetching data: $e');
     }
   }
 
   Future<void> getTodos() async {
-    print('Starting Todos');
     try {
       final response = await http.get(Uri.parse('$baseUrl/todos2.json')).timeout(const Duration(seconds: 10));
       if (response.statusCode == 200) {
-        print('Fetched data from $baseUrl/todos2.json');
         Map<String, dynamic> map = jsonDecode(response.body);
         List<dynamic> data = map['data'];
         for (var item in data) {
@@ -77,10 +67,8 @@ class ApiService {
           await dbHelper.insert(qualificacao.toMap());
         }
       } else {
-        print('Failed to load data from $baseUrl/todos2.json');
       }
     } catch (e) {
-      print('An error occurred while fetching data: $e');
     }
   }
 }

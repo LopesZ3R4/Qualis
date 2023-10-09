@@ -62,10 +62,8 @@ class DatabaseHelper {
     var res = await db.query(table, where: '$columnId = ? AND $columnType = ?', whereArgs: [row[columnId], row[columnType]]);
     if (res.isEmpty) {
       await db.insert(table, row);
-      print('Inserted ${row[columnId]} as ${row[columnType]} into the database');
     }
     else {
-      print('${row[columnId]} as ${row[columnType]} alredy exists!');
     }
   }
 
