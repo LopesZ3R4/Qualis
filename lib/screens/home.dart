@@ -252,7 +252,6 @@ class _BaseScreenState extends State<BaseScreen> {
                         : b.sigla.compareTo(a.sigla);
                   }
                 }
-
                 return 0;
               });
             }
@@ -278,7 +277,6 @@ class _BaseScreenState extends State<BaseScreen> {
                       ),
                     );
                   }
-
                   return ListTile(
                     title: Text(qualificacao.description),
                     subtitle: Text(
@@ -504,7 +502,7 @@ class _BaseScreenState extends State<BaseScreen> {
             title: const Text('Sigla'),
             trailing: IconButton(
               icon: Icon(_siglaIcon ?? Icons.arrow_upward,
-                  color: _siglaIcon == null ? Colors.white : null),
+                  color: _siglaIcon == null ? Colors.black : null),
               onPressed: () {
                 setState(() {
                   _selectedOrderDim = 'sigla';
@@ -522,7 +520,7 @@ class _BaseScreenState extends State<BaseScreen> {
             title: const Text('Descrição'),
             trailing: IconButton(
               icon: Icon(_descricaoIcon ?? Icons.arrow_upward,
-                  color: _descricaoIcon == null ? Colors.white : null),
+                  color: _descricaoIcon == null ? Colors.black : null),
               onPressed: () {
                 setState(() {
                   _selectedOrderDim = 'descricao';
@@ -540,7 +538,7 @@ class _BaseScreenState extends State<BaseScreen> {
             title: const Text('Qualis'),
             trailing: IconButton(
               icon: Icon(_descricaoIcon ?? Icons.arrow_upward,
-                  color: _descricaoIcon == null ? Colors.white : null),
+                  color: _descricaoIcon == null ? Colors.black : null),
               onPressed: () {
                 setState(() {
                   _selectedOrderDim = 'qualis';

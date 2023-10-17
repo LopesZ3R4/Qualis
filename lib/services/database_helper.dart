@@ -54,8 +54,7 @@ class DatabaseHelper {
           )
           ''');
     await db.execute('CREATE INDEX idx_id ON $table ($columnId)');
-    await db
-        .execute('CREATE INDEX idx_id_type ON $table ($columnId,$columnType)');
+    await db.execute('CREATE INDEX idx_id_type ON $table ($columnId,$columnType)');
     await db.execute('CREATE INDEX idx_type ON $table ($columnType)');
     await db.execute('CREATE INDEX idx_sigla ON $table ($columnSigla)');
   }
