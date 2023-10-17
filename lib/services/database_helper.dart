@@ -37,39 +37,43 @@ class DatabaseHelper {
     // }
     // Open the database
     return await openDatabase(path,
-        version: _databaseVersion,
-        onCreate: _onCreate);
+        version: _databaseVersion, onCreate: _onCreate);
   }
 
   Future _onCreate(Database db, int version) async {
-    await db.execute('''
+    await db.execute(
+        '''
           CREATE TABLE $table (
             $columnId TEXT  NOT NULL,
             $columnType TEXT  NOT NULL,
             $columnDescription TEXT NOT NULL,
             $columnSigla TEXT NOT NULL,
+            quarto TEXT TEXT NOT NULL,
+            quinto TEXT TEXT NOT NULL,
             PRIMARY KEY ($columnId, $columnType)
           )
           ''');
     await db.execute('CREATE INDEX idx_id ON $table ($columnId)');
-    await db.execute('CREATE INDEX idx_id_type ON $table ($columnId,$columnType)');
+    await db
+        .execute('CREATE INDEX idx_id_type ON $table ($columnId,$columnType)');
     await db.execute('CREATE INDEX idx_type ON $table ($columnType)');
     await db.execute('CREATE INDEX idx_sigla ON $table ($columnSigla)');
   }
 
   Future<void> insert(Map<String, dynamic> row) async {
     Database db = await instance.database;
-    var res = await db.query(table, where: '$columnId = ? AND $columnType = ?', whereArgs: [row[columnId], row[columnType]]);
+    var res = await db.query(table,
+        where: '$columnId = ? AND $columnType = ?',
+        whereArgs: [row[columnId], row[columnType]]);
     if (res.isEmpty) {
       await db.insert(table, row);
-    }
-    else {
-    }
+    } else {}
   }
 
   Future<List<Qualificacao>> queryAllRows(String type) async {
     Database db = await instance.database;
-    final maps = await db.query(table, where: '$columnType = ?', whereArgs: [type]);
+    final maps =
+        await db.query(table, where: '$columnType = ?', whereArgs: [type]);
 
     return List.generate(maps.length, (i) {
       return Qualificacao.fromMap(maps[i]);
@@ -78,16 +82,19 @@ class DatabaseHelper {
 
   Future<int?> queryRowCount() async {
     Database db = await instance.database;
-    return Sqflite.firstIntValue(await db.rawQuery('SELECT COUNT(*) FROM $table'));
+    return Sqflite.firstIntValue(
+        await db.rawQuery('SELECT COUNT(*) FROM $table'));
   }
 
   Future<int> update(Map<String, dynamic> row) async {
     Database db = await instance.database;
-    return await db.update(table, row, where: '$columnId = ?', whereArgs: [row[columnId], row[columnType]]);
+    return await db.update(table, row,
+        where: '$columnId = ?', whereArgs: [row[columnId], row[columnType]]);
   }
 
   Future<int> delete(String id, String type) async {
     Database db = await instance.database;
-    return await db.delete(table, where: '$columnId = ?', whereArgs: [id,type]);
+    return await db
+        .delete(table, where: '$columnId = ?', whereArgs: [id, type]);
   }
 }

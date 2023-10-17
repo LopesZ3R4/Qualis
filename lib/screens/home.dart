@@ -22,25 +22,35 @@ class _BaseScreenState extends State<BaseScreen> {
   IconData? _siglaIcon;
   IconData? _descricaoIcon;
 
+  Widget? _ordenacaoAlertDialog;
+
   void _updateTitle(String title) {
     setState(() {
       _title = title;
     });
   }
+
+  @override
+  void initState() {
+    super.initState();
+    _ordenacaoAlertDialog = _getOrdenacaoPeriodicos();
+  }
+
   void _removeOrder() {
     setState(() {
-    _selectedOrderDim = '';
-    _selectedOrder = '';
-    _siglaIcon = null;
-    _descricaoIcon = null;
+      _selectedOrderDim = '';
+      _selectedOrder = '';
+      _siglaIcon = null;
+      _descricaoIcon = null;
     });
   }
+
   void _setOrder(electedOrderDim, selectedOrder) {
     setState(() {
-    _selectedOrderDim = electedOrderDim;
-    _selectedOrder = selectedOrder;
+      _selectedOrderDim = electedOrderDim;
+      _selectedOrder = selectedOrder;
     });
-  } 
+  }
 
   void _updateSearchQuery(String newQuery) {
     setState(() {
@@ -73,78 +83,10 @@ class _BaseScreenState extends State<BaseScreen> {
               showDialog(
                 context: context,
                 builder: (context) {
+                  // Ordenador ?
                   return StatefulBuilder(
                     builder: (context, setState) {
-                      return AlertDialog(
-                        title: const Text('Ordenar'),
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            ListTile(
-                              title: const Text('Sigla'),
-                              trailing: IconButton(
-                                icon: Icon(_siglaIcon ?? Icons.arrow_upward,
-                                    color: _siglaIcon == null
-                                        ? Colors.white
-                                        : null),
-                                onPressed: () {
-                                  setState(() {
-                                    _selectedOrderDim = 'sigla';
-                                    _siglaIcon =
-                                        _siglaIcon == Icons.arrow_upward
-                                            ? Icons.arrow_downward
-                                            : Icons.arrow_upward;
-                                    _descricaoIcon = null;
-                                    _selectedOrder =
-                                        _siglaIcon == Icons.arrow_upward
-                                            ? 'asc'
-                                            : 'desc';
-                                  });
-                                },
-                              ),
-                            ),
-                            ListTile(
-                              title: const Text('Descrição'),
-                              trailing: IconButton(
-                                icon: Icon(_descricaoIcon ?? Icons.arrow_upward,
-                                    color: _descricaoIcon == null
-                                        ? Colors.white
-                                        : null),
-                                onPressed: () {
-                                  setState(() {
-                                    _selectedOrderDim = 'descricao';
-                                    _descricaoIcon =
-                                        _descricaoIcon == Icons.arrow_upward
-                                            ? Icons.arrow_downward
-                                            : Icons.arrow_upward;
-                                    _siglaIcon = null;
-                                    _selectedOrder =
-                                        _descricaoIcon == Icons.arrow_upward
-                                            ? 'asc'
-                                            : 'desc';
-                                  });
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                        actions: <Widget>[
-                          TextButton(
-                            child: const Text('Cancel'),
-                            onPressed: () {
-                              _removeOrder();
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                          TextButton(
-                            child: const Text('Apply'),
-                            onPressed: () {
-                              _setOrder(_selectedOrderDim, _selectedOrder);
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                        ],
-                      );
+                      return _ordenacaoAlertDialog ?? Container();
                     },
                   );
                 },
@@ -223,6 +165,7 @@ class _BaseScreenState extends State<BaseScreen> {
               title: const Text('Periodicos'),
               onTap: () {
                 _updateTitle('Periodicos');
+                _ordenacaoAlertDialog = _getOrdenacaoPeriodicos();
                 Navigator.pop(context);
               },
             ),
@@ -230,6 +173,7 @@ class _BaseScreenState extends State<BaseScreen> {
               title: const Text('Todos'),
               onTap: () {
                 _updateTitle('Todos');
+                _ordenacaoAlertDialog = _getOrdenacaoTodos();
                 Navigator.pop(context);
               },
             ),
@@ -237,6 +181,7 @@ class _BaseScreenState extends State<BaseScreen> {
               title: const Text('Conferencia'),
               onTap: () {
                 _updateTitle('Conferencia');
+                _ordenacaoAlertDialog = _getOrdenacaoConferencia();
                 Navigator.pop(context);
               },
             ),
@@ -244,46 +189,389 @@ class _BaseScreenState extends State<BaseScreen> {
         ),
       ),
       body: FutureBuilder<List<Qualificacao>>(
-      future: dbHelper.queryAllRows(_title),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          List<Qualificacao> qualificacoes = snapshot.data!;
-          qualificacoes = qualificacoes.where((qualificacao) {
-            return qualificacao.description.toLowerCase().contains(_searchQuery.toLowerCase());
-          }).toList();
-        if (_selectedOrderDim.isNotEmpty) {
-          qualificacoes.sort((a, b) {
-            if (_selectedOrderDim == 'descricao') {
-              return _selectedOrder == 'asc'
-                ? a.description.compareTo(b.description)
-                : b.description.compareTo(a.description);
-            } else if (_selectedOrderDim == 'sigla') {
-              return _selectedOrder == 'asc'
-                ? a.sigla.compareTo(b.sigla)
-                : b.sigla.compareTo(a.sigla);
+        future: dbHelper.queryAllRows(_title),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            List<Qualificacao> qualificacoes = snapshot.data!;
+            qualificacoes = qualificacoes.where((qualificacao) {
+              return qualificacao.description
+                  .toLowerCase()
+                  .contains(_searchQuery.toLowerCase());
+            }).toList();
+            if (_selectedOrderDim.isNotEmpty) {
+              qualificacoes.sort((a, b) {
+                if (_selectedOrderDim.endsWith("_periodico")) {
+                  if (_selectedOrderDim == 'issn_periodico') {
+                    return _selectedOrder == 'asc'
+                        ? a.id.compareTo(b.id)
+                        : b.id.compareTo(a.id);
+                  } else if (_selectedOrderDim == 'descricao_periodico') {
+                    return _selectedOrder == 'asc'
+                        ? a.description.compareTo(b.description)
+                        : b.description.compareTo(a.description);
+                  } else if (_selectedOrderDim == 'qualis_periodico') {
+                    return _selectedOrder == 'asc'
+                        ? a.sigla.compareTo(b.sigla)
+                        : b.sigla.compareTo(a.sigla);
+                  }
+                }
+                if (_selectedOrderDim.endsWith("_todos")) {
+                  if (_selectedOrderDim == 'issn_todos') {
+                    return _selectedOrder == 'asc'
+                        ? a.id.compareTo(b.id)
+                        : b.id.compareTo(a.id);
+                  } else if (_selectedOrderDim == 'descricao_todos') {
+                    return _selectedOrder == 'asc'
+                        ? a.description.compareTo(b.description)
+                        : b.description.compareTo(a.description);
+                  } else if (_selectedOrderDim == 'qualis_comp_todos') {
+                    return _selectedOrder == 'asc'
+                        ? a.sigla.compareTo(b.sigla)
+                        : b.sigla.compareTo(a.sigla);
+                  } else if (_selectedOrderDim == 'qualis_todos') {
+                    return _selectedOrder == 'asc'
+                        ? a.quarto.compareTo(b.quarto)
+                        : b.quarto.compareTo(a.quarto);
+                  } else if (_selectedOrderDim == 'area_todos') {
+                    return _selectedOrder == 'asc'
+                        ? a.quinto.compareTo(b.quinto)
+                        : b.quinto.compareTo(a.quinto);
+                  }
+                } else {
+                  if (_selectedOrderDim == 'descricao') {
+                    return _selectedOrder == 'asc'
+                        ? a.description.compareTo(b.description)
+                        : b.description.compareTo(a.description);
+                  } else if (_selectedOrderDim == 'sigla') {
+                    return _selectedOrder == 'asc'
+                        ? a.id.compareTo(b.id)
+                        : b.id.compareTo(a.id);
+                  } else if (_selectedOrderDim == 'qualis') {
+                    return _selectedOrder == 'asc'
+                        ? a.sigla.compareTo(b.sigla)
+                        : b.sigla.compareTo(a.sigla);
+                  }
+                }
+
+                return 0;
+              });
             }
-            return 0;
-          });
-        }          
-          return RefreshIndicator(
-            onRefresh: _syncData,
-            child: ListView.builder(
-              itemCount: qualificacoes.length,
-              itemBuilder: (context, index) {
-                Qualificacao qualificacao = qualificacoes[index];
-                return ListTile(
-                  title: Text('Capes ${qualificacao.sigla}'),
-                  subtitle: Text('${qualificacao.id} - ${qualificacao.description}'),
-                );
+            return RefreshIndicator(
+              onRefresh: _syncData,
+              child: ListView.builder(
+                itemCount: qualificacoes.length,
+                itemBuilder: (context, index) {
+                  Qualificacao qualificacao = qualificacoes[index];
+
+                  if (_title == 'Periodicos') {
+                    return ListTile(
+                      title: Text(qualificacao.description),
+                      subtitle: Text(
+                          '${qualificacao.id} - Qualis: ${qualificacao.sigla}'),
+                    );
+                  } else if (_title == 'Todos') {
+                    return ListTile(
+                      title: Text(qualificacao.description),
+                      isThreeLine: true,
+                      subtitle: Text(
+                        'ISSN: ${qualificacao.id}\nQualis computação: ${qualificacao.sigla}\nQualis: ${qualificacao.quarto}\nÁrea: ${qualificacao.quinto}',
+                      ),
+                    );
+                  }
+
+                  return ListTile(
+                    title: Text(qualificacao.description),
+                    subtitle: Text(
+                        '${qualificacao.id} - QUALIS: ${qualificacao.sigla}'),
+                  );
+                },
+              ),
+            );
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+          return const Center(child: CircularProgressIndicator());
+        },
+      ),
+    );
+  }
+
+  AlertDialog _getOrdenacaoPeriodicos() {
+    return AlertDialog(
+      title: const Text('Ordenar'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          ListTile(
+            title: const Text('ISSN'),
+            trailing: IconButton(
+              icon: Icon(_siglaIcon ?? Icons.arrow_upward,
+                  color: _siglaIcon == null ? Colors.white : null),
+              onPressed: () {
+                setState(() {
+                  _selectedOrderDim = 'issn_periodico';
+                  _siglaIcon = _siglaIcon == Icons.arrow_upward
+                      ? Icons.arrow_downward
+                      : Icons.arrow_upward;
+                  _descricaoIcon = null;
+                  _selectedOrder =
+                      _siglaIcon == Icons.arrow_upward ? 'asc' : 'desc';
+                });
               },
             ),
-          );
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        }
-        return const Center(child: CircularProgressIndicator());
-      },
-    ),
+          ),
+          ListTile(
+            title: const Text('Descrição'),
+            trailing: IconButton(
+              icon: Icon(_descricaoIcon ?? Icons.arrow_upward,
+                  color: _descricaoIcon == null ? Colors.white : null),
+              onPressed: () {
+                setState(() {
+                  _selectedOrderDim = 'descricao_periodico';
+                  _descricaoIcon = _descricaoIcon == Icons.arrow_upward
+                      ? Icons.arrow_downward
+                      : Icons.arrow_upward;
+                  _siglaIcon = null;
+                  _selectedOrder =
+                      _descricaoIcon == Icons.arrow_upward ? 'asc' : 'desc';
+                });
+              },
+            ),
+          ),
+          ListTile(
+            title: const Text('Qualis'),
+            trailing: IconButton(
+              icon: Icon(_descricaoIcon ?? Icons.arrow_upward,
+                  color: _descricaoIcon == null ? Colors.white : null),
+              onPressed: () {
+                setState(() {
+                  _selectedOrderDim = 'qualis_periodico';
+                  _descricaoIcon = _descricaoIcon == Icons.arrow_upward
+                      ? Icons.arrow_downward
+                      : Icons.arrow_upward;
+                  _siglaIcon = null;
+                  _selectedOrder =
+                      _descricaoIcon == Icons.arrow_upward ? 'asc' : 'desc';
+                });
+              },
+            ),
+          ),
+        ],
+      ),
+      actions: <Widget>[
+        TextButton(
+          child: const Text('Cancel'),
+          onPressed: () {
+            _removeOrder();
+            Navigator.of(context).pop();
+          },
+        ),
+        TextButton(
+          child: const Text('Apply'),
+          onPressed: () {
+            _setOrder(_selectedOrderDim, _selectedOrder);
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
+    );
+  }
+
+  AlertDialog _getOrdenacaoTodos() {
+    return AlertDialog(
+      title: const Text('Ordenar'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          ListTile(
+            title: const Text('ISSN'),
+            trailing: IconButton(
+              icon: Icon(_siglaIcon ?? Icons.arrow_upward,
+                  color: _siglaIcon == null ? Colors.white : null),
+              onPressed: () {
+                setState(() {
+                  _selectedOrderDim = 'issn_todos';
+                  _siglaIcon = _siglaIcon == Icons.arrow_upward
+                      ? Icons.arrow_downward
+                      : Icons.arrow_upward;
+                  _descricaoIcon = null;
+                  _selectedOrder =
+                      _siglaIcon == Icons.arrow_upward ? 'asc' : 'desc';
+                });
+              },
+            ),
+          ),
+          ListTile(
+            title: const Text('Descrição'),
+            trailing: IconButton(
+              icon: Icon(_descricaoIcon ?? Icons.arrow_upward,
+                  color: _descricaoIcon == null ? Colors.white : null),
+              onPressed: () {
+                setState(() {
+                  _selectedOrderDim = 'descricao_todos';
+                  _descricaoIcon = _descricaoIcon == Icons.arrow_upward
+                      ? Icons.arrow_downward
+                      : Icons.arrow_upward;
+                  _siglaIcon = null;
+                  _selectedOrder =
+                      _descricaoIcon == Icons.arrow_upward ? 'asc' : 'desc';
+                });
+              },
+            ),
+          ),
+          ListTile(
+            title: const Text('Qualis computação'),
+            trailing: IconButton(
+              icon: Icon(_descricaoIcon ?? Icons.arrow_upward,
+                  color: _descricaoIcon == null ? Colors.white : null),
+              onPressed: () {
+                setState(() {
+                  _selectedOrderDim = 'qualis_comp_todos';
+                  _descricaoIcon = _descricaoIcon == Icons.arrow_upward
+                      ? Icons.arrow_downward
+                      : Icons.arrow_upward;
+                  _siglaIcon = null;
+                  _selectedOrder =
+                      _descricaoIcon == Icons.arrow_upward ? 'asc' : 'desc';
+                });
+              },
+            ),
+          ),
+          ListTile(
+            title: const Text('Qualis'),
+            trailing: IconButton(
+              icon: Icon(_descricaoIcon ?? Icons.arrow_upward,
+                  color: _descricaoIcon == null ? Colors.white : null),
+              onPressed: () {
+                setState(() {
+                  _selectedOrderDim = 'qualis_todos';
+                  _descricaoIcon = _descricaoIcon == Icons.arrow_upward
+                      ? Icons.arrow_downward
+                      : Icons.arrow_upward;
+                  _siglaIcon = null;
+                  _selectedOrder =
+                      _descricaoIcon == Icons.arrow_upward ? 'asc' : 'desc';
+                });
+              },
+            ),
+          ),
+          ListTile(
+            title: const Text('Área'),
+            trailing: IconButton(
+              icon: Icon(_descricaoIcon ?? Icons.arrow_upward,
+                  color: _descricaoIcon == null ? Colors.white : null),
+              onPressed: () {
+                setState(() {
+                  _selectedOrderDim = 'area_todos';
+                  _descricaoIcon = _descricaoIcon == Icons.arrow_upward
+                      ? Icons.arrow_downward
+                      : Icons.arrow_upward;
+                  _siglaIcon = null;
+                  _selectedOrder =
+                      _descricaoIcon == Icons.arrow_upward ? 'asc' : 'desc';
+                });
+              },
+            ),
+          ),
+        ],
+      ),
+      actions: <Widget>[
+        TextButton(
+          child: const Text('Cancel'),
+          onPressed: () {
+            _removeOrder();
+            Navigator.of(context).pop();
+          },
+        ),
+        TextButton(
+          child: const Text('Apply'),
+          onPressed: () {
+            _setOrder(_selectedOrderDim, _selectedOrder);
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
+    );
+  }
+
+  AlertDialog _getOrdenacaoConferencia() {
+    return AlertDialog(
+      title: const Text('Ordenar'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          ListTile(
+            title: const Text('Sigla'),
+            trailing: IconButton(
+              icon: Icon(_siglaIcon ?? Icons.arrow_upward,
+                  color: _siglaIcon == null ? Colors.white : null),
+              onPressed: () {
+                setState(() {
+                  _selectedOrderDim = 'sigla';
+                  _siglaIcon = _siglaIcon == Icons.arrow_upward
+                      ? Icons.arrow_downward
+                      : Icons.arrow_upward;
+                  _descricaoIcon = null;
+                  _selectedOrder =
+                      _siglaIcon == Icons.arrow_upward ? 'asc' : 'desc';
+                });
+              },
+            ),
+          ),
+          ListTile(
+            title: const Text('Descrição'),
+            trailing: IconButton(
+              icon: Icon(_descricaoIcon ?? Icons.arrow_upward,
+                  color: _descricaoIcon == null ? Colors.white : null),
+              onPressed: () {
+                setState(() {
+                  _selectedOrderDim = 'descricao';
+                  _descricaoIcon = _descricaoIcon == Icons.arrow_upward
+                      ? Icons.arrow_downward
+                      : Icons.arrow_upward;
+                  _siglaIcon = null;
+                  _selectedOrder =
+                      _descricaoIcon == Icons.arrow_upward ? 'asc' : 'desc';
+                });
+              },
+            ),
+          ),
+          ListTile(
+            title: const Text('Qualis'),
+            trailing: IconButton(
+              icon: Icon(_descricaoIcon ?? Icons.arrow_upward,
+                  color: _descricaoIcon == null ? Colors.white : null),
+              onPressed: () {
+                setState(() {
+                  _selectedOrderDim = 'qualis';
+                  _descricaoIcon = _descricaoIcon == Icons.arrow_upward
+                      ? Icons.arrow_downward
+                      : Icons.arrow_upward;
+                  _siglaIcon = null;
+                  _selectedOrder =
+                      _descricaoIcon == Icons.arrow_upward ? 'asc' : 'desc';
+                });
+              },
+            ),
+          ),
+        ],
+      ),
+      actions: <Widget>[
+        TextButton(
+          child: const Text('Cancel'),
+          onPressed: () {
+            _removeOrder();
+            Navigator.of(context).pop();
+          },
+        ),
+        TextButton(
+          child: const Text('Apply'),
+          onPressed: () {
+            _setOrder(_selectedOrderDim, _selectedOrder);
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
     );
   }
 }

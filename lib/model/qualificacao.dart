@@ -5,12 +5,16 @@ class Qualificacao {
   final String type;
   final String description;
   final String sigla;
+  final String quarto;
+  final String quinto;
 
   Qualificacao({
-    required this.id,
     required this.type,
+    required this.id,
     required this.description,
     required this.sigla,
+    required this.quarto,
+    required this.quinto,
   });
 
   Map<String, dynamic> toMap() {
@@ -19,6 +23,8 @@ class Qualificacao {
       'type': type,
       'description': description,
       'sigla': sigla,
+      'quarto': quarto,
+      'quinto': quinto
     };
   }
 
@@ -28,6 +34,8 @@ class Qualificacao {
       type: map['type'],
       description: map['description'],
       sigla: map['sigla'],
+      quarto: map['quarto'] ?? '',
+      quinto: map['quinto'] ?? '',
     );
   }
 }
