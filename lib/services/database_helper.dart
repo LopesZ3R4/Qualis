@@ -17,6 +17,9 @@ class DatabaseHelper {
   static const columnType = 'type';
   static const columnDescription = 'description';
   static const columnSigla = 'sigla';
+  static const columnQuarto= 'quarto';
+  static const columnQuinto = 'quinto';
+
 
   DatabaseHelper._privateConstructor();
   static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
@@ -48,8 +51,8 @@ class DatabaseHelper {
             $columnType TEXT  NOT NULL,
             $columnDescription TEXT NOT NULL,
             $columnSigla TEXT NOT NULL,
-            quarto TEXT TEXT NOT NULL,
-            quinto TEXT TEXT NOT NULL,
+            $columnQuarto TEXT,
+            $columnQuinto TEXT,
             PRIMARY KEY ($columnId, $columnType)
           )
           ''');
