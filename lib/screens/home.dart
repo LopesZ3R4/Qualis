@@ -1,6 +1,7 @@
 // File: lib/screens/base_screen.dart
 import 'package:flutter/material.dart';
 import 'package:qualis/services/database_helper.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../model/qualificacao.dart';
 import '../services/qualis_services.dart';
 import 'package:diacritic/diacritic.dart';
@@ -60,7 +61,49 @@ class _BaseScreenState extends State<BaseScreen> {
     await apiService.getPeriodico();
     await apiService.getTodos();
   }
+  void _showWelcomeDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF536DFE),
+          title: const DefaultTextStyle(
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            child: Text('Olá,'),
+          ),
+          content: const DefaultTextStyle(
+            style: TextStyle(color: Colors.white),
+            child: Text('Bem vindo ao Qualis - IC/UFMT, esta é uma ferramenta que busca facilitar o acesso a informações sobre qualis de períodicos e conferências da área da computação. Toda informação existente nesta página foi retirada do site da CAPES. Não reflete, sob nenhuma hipótese, a opinião de técnicos e professores do Instituto de Computação da UFMT.'),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK', style: TextStyle(color: Colors.white)),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkFirstAccess();
+    });
+  }
+
+  Future<void> _checkFirstAccess() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isFirstAccess = prefs.getBool('isFirstAccess') ?? true;
+    if (isFirstAccess) {
+      _showWelcomeDialog();
+      await prefs.setBool('isFirstAccess', false);
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -262,7 +305,17 @@ class _BaseScreenState extends State<BaseScreen> {
                   children: <Widget>[
                     Icon(Icons.sync, color: Colors.black),
                     SizedBox(width: 8),
-                    Text('Sync'),
+                    Text('Atualizar'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 2,
+                child: Row(
+                  children: <Widget>[
+                    Icon(Icons.help, color: Colors.black),
+                    SizedBox(width: 8),
+                    Text('Informações do App'),
                   ],
                 ),
               ),
@@ -270,6 +323,8 @@ class _BaseScreenState extends State<BaseScreen> {
             onSelected: (value) {
               if (value == 1) {
                 _syncData();
+              } else if (value == 2) {
+                _showWelcomeDialog();
               }
             },
           ),
