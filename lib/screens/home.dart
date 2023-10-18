@@ -20,7 +20,7 @@ class _BaseScreenState extends State<BaseScreen> {
   String _searchQuery = '';
   String _selectedOrderDim = '';
   String _selectedOrder = '';
-  IconData? _siglaIcon;
+  IconData? _capesIcon;
   IconData? _tituloIcon;
   IconData? _areaIcon;
 
@@ -34,7 +34,7 @@ class _BaseScreenState extends State<BaseScreen> {
     setState(() {
       _selectedOrderDim = '';
       _selectedOrder = '';
-      _siglaIcon = null;
+      _capesIcon = null;
       _tituloIcon = null;
       _areaIcon = null;
     });
@@ -88,21 +88,21 @@ class _BaseScreenState extends State<BaseScreen> {
                             ListTile(
                               title: const Text('Capes'),
                               trailing: IconButton(
-                                icon: Icon(_siglaIcon ?? Icons.arrow_upward,
-                                    color: _siglaIcon == null
+                                icon: Icon(_capesIcon ?? Icons.arrow_upward,
+                                    color: _capesIcon == null
                                         ? Colors.white
                                         : null),
                                 onPressed: () {
                                   setState(() {
                                     _selectedOrderDim = 'Capes';
-                                    _siglaIcon =
-                                        _siglaIcon == Icons.arrow_upward
+                                    _capesIcon =
+                                        _capesIcon == Icons.arrow_upward
                                             ? Icons.arrow_downward
                                             : Icons.arrow_upward;
                                     _tituloIcon = null;
                                     _areaIcon = null;
                                     _selectedOrder =
-                                        _siglaIcon == Icons.arrow_upward
+                                        _capesIcon == Icons.arrow_upward
                                             ? 'asc'
                                             : 'desc';
                                   });
@@ -123,7 +123,7 @@ class _BaseScreenState extends State<BaseScreen> {
                                         _tituloIcon == Icons.arrow_upward
                                             ? Icons.arrow_downward
                                             : Icons.arrow_upward;
-                                    _siglaIcon = null;
+                                    _capesIcon = null;
                                     _areaIcon = null;
                                     _selectedOrder =
                                         _tituloIcon == Icons.arrow_upward
@@ -149,7 +149,7 @@ class _BaseScreenState extends State<BaseScreen> {
                                               _areaIcon == Icons.arrow_upward
                                                   ? Icons.arrow_downward
                                                   : Icons.arrow_upward;
-                                          _siglaIcon = null;
+                                          _capesIcon = null;
                                           _tituloIcon = null;
                                           _selectedOrder =
                                               _areaIcon == Icons.arrow_upward
