@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:qualis/services/database_helper.dart';
 import '../model/qualificacao.dart';
 import '../services/qualis_services.dart';
+import 'package:diacritic/diacritic.dart';
 
 class BaseScreen extends StatefulWidget {
   const BaseScreen({super.key});
@@ -19,28 +20,34 @@ class _BaseScreenState extends State<BaseScreen> {
   String _searchQuery = '';
   String _selectedOrderDim = '';
   String _selectedOrder = '';
+  IconData? _capesIcon;
+  IconData? _tituloIcon;
+  IconData? _areaIcon;
   IconData? _siglaIcon;
-  IconData? _descricaoIcon;
 
   void _updateTitle(String title) {
     setState(() {
       _title = title;
     });
   }
+
   void _removeOrder() {
     setState(() {
-    _selectedOrderDim = '';
-    _selectedOrder = '';
-    _siglaIcon = null;
-    _descricaoIcon = null;
+      _selectedOrderDim = '';
+      _selectedOrder = '';
+      _capesIcon = null;
+      _tituloIcon = null;
+      _areaIcon = null;
+      _siglaIcon = null;
     });
   }
+
   void _setOrder(electedOrderDim, selectedOrder) {
     setState(() {
-    _selectedOrderDim = electedOrderDim;
-    _selectedOrder = selectedOrder;
+      _selectedOrderDim = electedOrderDim;
+      _selectedOrder = selectedOrder;
     });
-  } 
+  }
 
   void _updateSearchQuery(String newQuery) {
     setState(() {
@@ -81,7 +88,9 @@ class _BaseScreenState extends State<BaseScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
                             ListTile(
-                              title: const Text('Sigla'),
+                              title: _title == 'Conferencia'
+                                  ? const Text('Sigla')
+                                  : const Text('ISSN'),
                               trailing: IconButton(
                                 icon: Icon(_siglaIcon ?? Icons.arrow_upward,
                                     color: _siglaIcon == null
@@ -94,7 +103,9 @@ class _BaseScreenState extends State<BaseScreen> {
                                         _siglaIcon == Icons.arrow_upward
                                             ? Icons.arrow_downward
                                             : Icons.arrow_upward;
-                                    _descricaoIcon = null;
+                                    _tituloIcon = null;
+                                    _areaIcon = null;
+                                    _capesIcon = null;
                                     _selectedOrder =
                                         _siglaIcon == Icons.arrow_upward
                                             ? 'asc'
@@ -104,28 +115,83 @@ class _BaseScreenState extends State<BaseScreen> {
                               ),
                             ),
                             ListTile(
-                              title: const Text('Descrição'),
+                              title: const Text('Capes'),
                               trailing: IconButton(
-                                icon: Icon(_descricaoIcon ?? Icons.arrow_upward,
-                                    color: _descricaoIcon == null
+                                icon: Icon(_capesIcon ?? Icons.arrow_upward,
+                                    color: _capesIcon == null
                                         ? Colors.white
                                         : null),
                                 onPressed: () {
                                   setState(() {
-                                    _selectedOrderDim = 'descricao';
-                                    _descricaoIcon =
-                                        _descricaoIcon == Icons.arrow_upward
+                                    _selectedOrderDim = 'capes';
+                                    _capesIcon =
+                                        _capesIcon == Icons.arrow_upward
                                             ? Icons.arrow_downward
                                             : Icons.arrow_upward;
+                                    _tituloIcon = null;
+                                    _areaIcon = null;
                                     _siglaIcon = null;
                                     _selectedOrder =
-                                        _descricaoIcon == Icons.arrow_upward
+                                        _capesIcon == Icons.arrow_upward
                                             ? 'asc'
                                             : 'desc';
                                   });
                                 },
                               ),
                             ),
+                            ListTile(
+                              title: const Text('Titulo'),
+                              trailing: IconButton(
+                                icon: Icon(_tituloIcon ?? Icons.arrow_upward,
+                                    color: _tituloIcon == null
+                                        ? Colors.white
+                                        : null),
+                                onPressed: () {
+                                  setState(() {
+                                    _selectedOrderDim = 'titulo';
+                                    _tituloIcon =
+                                        _tituloIcon == Icons.arrow_upward
+                                            ? Icons.arrow_downward
+                                            : Icons.arrow_upward;
+                                    _capesIcon = null;
+                                    _areaIcon = null;
+                                    _siglaIcon = null;
+                                    _selectedOrder =
+                                        _tituloIcon == Icons.arrow_upward
+                                            ? 'asc'
+                                            : 'desc';
+                                  });
+                                },
+                              ),
+                            ),
+                            (_title == 'Todos')
+                                ? ListTile(
+                                    title: const Text('Area'),
+                                    trailing: IconButton(
+                                      icon: Icon(
+                                          _areaIcon ?? Icons.arrow_upward,
+                                          color: _areaIcon == null
+                                              ? Colors.white
+                                              : null),
+                                      onPressed: () {
+                                        setState(() {
+                                          _selectedOrderDim = 'area';
+                                          _areaIcon =
+                                              _areaIcon == Icons.arrow_upward
+                                                  ? Icons.arrow_downward
+                                                  : Icons.arrow_upward;
+                                          _capesIcon = null;
+                                          _tituloIcon = null;
+                                          _siglaIcon = null;
+                                          _selectedOrder =
+                                              _areaIcon == Icons.arrow_upward
+                                                  ? 'asc'
+                                                  : 'desc';
+                                        });
+                                      },
+                                    ),
+                                  )
+                                : Container()
                           ],
                         ),
                         actions: <Widget>[
@@ -244,46 +310,76 @@ class _BaseScreenState extends State<BaseScreen> {
         ),
       ),
       body: FutureBuilder<List<Qualificacao>>(
-      future: dbHelper.queryAllRows(_title),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          List<Qualificacao> qualificacoes = snapshot.data!;
-          qualificacoes = qualificacoes.where((qualificacao) {
-            return qualificacao.description.toLowerCase().contains(_searchQuery.toLowerCase());
-          }).toList();
-        if (_selectedOrderDim.isNotEmpty) {
-          qualificacoes.sort((a, b) {
-            if (_selectedOrderDim == 'descricao') {
-              return _selectedOrder == 'asc'
-                ? a.description.compareTo(b.description)
-                : b.description.compareTo(a.description);
-            } else if (_selectedOrderDim == 'sigla') {
-              return _selectedOrder == 'asc'
-                ? a.sigla.compareTo(b.sigla)
-                : b.sigla.compareTo(a.sigla);
+        future: dbHelper.queryAllRows(_title),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            List<Qualificacao> qualificacoes = snapshot.data!;
+            qualificacoes = qualificacoes.where((qualificacao) {
+              return qualificacao.description
+                  .toLowerCase()
+                  .contains(_searchQuery.toLowerCase());
+            }).toList();
+            if (_selectedOrderDim.isNotEmpty) {
+              qualificacoes.sort((a, b) {
+                if (_selectedOrderDim == 'titulo') {
+                  return _selectedOrder == 'asc'
+                      ? removeDiacritics(a.description)
+                          .compareTo(removeDiacritics(b.description))
+                      : removeDiacritics(b.description)
+                          .compareTo(removeDiacritics(a.description));
+                } else if (_selectedOrderDim == 'capes') {
+                  return _selectedOrder == 'asc'
+                      ? a.sigla.compareTo(b.sigla)
+                      : b.sigla.compareTo(a.sigla);
+                } else if (_selectedOrderDim == 'area' && _title == 'Todos') {
+                  return _selectedOrder == 'asc'
+                      ? removeDiacritics(a.quinto ?? '')
+                          .compareTo(removeDiacritics(b.quinto ?? ''))
+                      : removeDiacritics(b.quinto ?? '')
+                          .compareTo(removeDiacritics(a.quinto ?? ''));
+                } else if (_selectedOrderDim == 'sigla') {
+                  return _selectedOrder == 'asc'
+                      ? a.id.compareTo(b.id)
+                      : b.id.compareTo(a.id);
+                }
+                return 0;
+              });
             }
-            return 0;
-          });
-        }          
-          return RefreshIndicator(
-            onRefresh: _syncData,
-            child: ListView.builder(
-              itemCount: qualificacoes.length,
-              itemBuilder: (context, index) {
-                Qualificacao qualificacao = qualificacoes[index];
-                return ListTile(
-                  title: Text('Capes ${qualificacao.sigla}'),
-                  subtitle: Text('${qualificacao.id} - ${qualificacao.description}'),
-                );
-              },
-            ),
-          );
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        }
-        return const Center(child: CircularProgressIndicator());
-      },
-    ),
+            return RefreshIndicator(
+              onRefresh: _syncData,
+              child: ListView.builder(
+                itemCount: qualificacoes.length,
+                itemBuilder: (context, index) {
+                  Qualificacao qualificacao = qualificacoes[index];
+                  if (_title == 'Periodicos') {
+                    return ListTile(
+                      title: Text(qualificacao.description),
+                      subtitle: Text(
+                          '${qualificacao.id} - Capes: ${qualificacao.sigla}'),
+                    );
+                  } else if (_title == 'Todos') {
+                    return ListTile(
+                      title: Text(qualificacao.description),
+                      isThreeLine: true,
+                      subtitle: Text(
+                        'ISSN: ${qualificacao.id}\nQualis: ${qualificacao.quarto}\nArea: ${qualificacao.quinto}',
+                      ),
+                    );
+                  }
+                  return ListTile(
+                    title: Text(qualificacao.description),
+                    subtitle: Text(
+                        '${qualificacao.id} - QUALIS: ${qualificacao.sigla}'),
+                  );
+                },
+              ),
+            );
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+          return const Center(child: CircularProgressIndicator());
+        },
+      ),
     );
   }
 }
