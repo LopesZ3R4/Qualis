@@ -23,6 +23,7 @@ class _BaseScreenState extends State<BaseScreen> {
   IconData? _capesIcon;
   IconData? _tituloIcon;
   IconData? _areaIcon;
+  IconData? _siglaIcon;
 
   void _updateTitle(String title) {
     setState(() {
@@ -37,6 +38,7 @@ class _BaseScreenState extends State<BaseScreen> {
       _capesIcon = null;
       _tituloIcon = null;
       _areaIcon = null;
+      _siglaIcon = null;
     });
   }
 
@@ -86,6 +88,33 @@ class _BaseScreenState extends State<BaseScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
                             ListTile(
+                              title: _title == 'Conferencia'
+                                  ? const Text('Sigla')
+                                  : const Text('ISSN'),
+                              trailing: IconButton(
+                                icon: Icon(_siglaIcon ?? Icons.arrow_upward,
+                                    color: _siglaIcon == null
+                                        ? Colors.white
+                                        : null),
+                                onPressed: () {
+                                  setState(() {
+                                    _selectedOrderDim = 'sigla';
+                                    _siglaIcon =
+                                        _siglaIcon == Icons.arrow_upward
+                                            ? Icons.arrow_downward
+                                            : Icons.arrow_upward;
+                                    _tituloIcon = null;
+                                    _areaIcon = null;
+                                    _capesIcon = null;
+                                    _selectedOrder =
+                                        _siglaIcon == Icons.arrow_upward
+                                            ? 'asc'
+                                            : 'desc';
+                                  });
+                                },
+                              ),
+                            ),
+                            ListTile(
                               title: const Text('Capes'),
                               trailing: IconButton(
                                 icon: Icon(_capesIcon ?? Icons.arrow_upward,
@@ -94,13 +123,14 @@ class _BaseScreenState extends State<BaseScreen> {
                                         : null),
                                 onPressed: () {
                                   setState(() {
-                                    _selectedOrderDim = 'Capes';
+                                    _selectedOrderDim = 'capes';
                                     _capesIcon =
                                         _capesIcon == Icons.arrow_upward
                                             ? Icons.arrow_downward
                                             : Icons.arrow_upward;
                                     _tituloIcon = null;
                                     _areaIcon = null;
+                                    _siglaIcon = null;
                                     _selectedOrder =
                                         _capesIcon == Icons.arrow_upward
                                             ? 'asc'
@@ -125,6 +155,7 @@ class _BaseScreenState extends State<BaseScreen> {
                                             : Icons.arrow_upward;
                                     _capesIcon = null;
                                     _areaIcon = null;
+                                    _siglaIcon = null;
                                     _selectedOrder =
                                         _tituloIcon == Icons.arrow_upward
                                             ? 'asc'
@@ -151,6 +182,7 @@ class _BaseScreenState extends State<BaseScreen> {
                                                   : Icons.arrow_upward;
                                           _capesIcon = null;
                                           _tituloIcon = null;
+                                          _siglaIcon = null;
                                           _selectedOrder =
                                               _areaIcon == Icons.arrow_upward
                                                   ? 'asc'
@@ -295,7 +327,7 @@ class _BaseScreenState extends State<BaseScreen> {
                           .compareTo(removeDiacritics(b.description))
                       : removeDiacritics(b.description)
                           .compareTo(removeDiacritics(a.description));
-                } else if (_selectedOrderDim == 'Capes') {
+                } else if (_selectedOrderDim == 'capes') {
                   return _selectedOrder == 'asc'
                       ? a.sigla.compareTo(b.sigla)
                       : b.sigla.compareTo(a.sigla);
@@ -305,6 +337,10 @@ class _BaseScreenState extends State<BaseScreen> {
                           .compareTo(removeDiacritics(b.quinto ?? ''))
                       : removeDiacritics(b.quinto ?? '')
                           .compareTo(removeDiacritics(a.quinto ?? ''));
+                } else if (_selectedOrderDim == 'sigla') {
+                  return _selectedOrder == 'asc'
+                      ? a.id.compareTo(b.id)
+                      : b.id.compareTo(a.id);
                 }
                 return 0;
               });
