@@ -1,5 +1,3 @@
-// File: README.md
-
 # Qualis
 
 Qualis is a Flutter application designed to manage and organize academic qualifications. It provides a user-friendly interface for viewing and sorting qualifications, with features for searching and syncing data.
