@@ -21,6 +21,7 @@ class _BaseScreenState extends State<BaseScreen> {
   String _selectedOrder = '';
   IconData? _siglaIcon;
   IconData? _descricaoIcon;
+  IconData? _QualisIcon;
 
   Widget? _ordenacaoAlertDialog;
 
@@ -42,6 +43,7 @@ class _BaseScreenState extends State<BaseScreen> {
       _selectedOrder = '';
       _siglaIcon = null;
       _descricaoIcon = null;
+      _QualisIcon = null;
     });
   }
 
@@ -273,7 +275,7 @@ class _BaseScreenState extends State<BaseScreen> {
                       title: Text(qualificacao.description),
                       isThreeLine: true,
                       subtitle: Text(
-                        'ISSN: ${qualificacao.id}\nQualis computação: ${qualificacao.sigla}\nQualis: ${qualificacao.quarto}\nÁrea: ${qualificacao.quinto}',
+                        'ISSN: ${qualificacao.id}\nQualis: ${qualificacao.quarto}\nÁrea: ${qualificacao.quinto}',
                       ),
                     );
                   }
@@ -303,8 +305,7 @@ class _BaseScreenState extends State<BaseScreen> {
           ListTile(
             title: const Text('ISSN'),
             trailing: IconButton(
-              icon: Icon(_siglaIcon ?? Icons.arrow_upward,
-                  color: _siglaIcon == null ? Colors.white : null),
+              icon: Icon(_siglaIcon ?? Icons.arrow_upward, color: _siglaIcon == null ? Colors.white : null),
               onPressed: () {
                 setState(() {
                   _selectedOrderDim = 'issn_periodico';
@@ -312,6 +313,7 @@ class _BaseScreenState extends State<BaseScreen> {
                       ? Icons.arrow_downward
                       : Icons.arrow_upward;
                   _descricaoIcon = null;
+                  _QualisIcon = null;
                   _selectedOrder =
                       _siglaIcon == Icons.arrow_upward ? 'asc' : 'desc';
                 });
@@ -322,16 +324,21 @@ class _BaseScreenState extends State<BaseScreen> {
             title: const Text('Descrição'),
             trailing: IconButton(
               icon: Icon(_descricaoIcon ?? Icons.arrow_upward,
-                  color: _descricaoIcon == null ? Colors.white : null),
+                  color: _descricaoIcon == null
+                      ? Colors.white
+                      : null),
               onPressed: () {
                 setState(() {
-                  _selectedOrderDim = 'descricao_periodico';
-                  _descricaoIcon = _descricaoIcon == Icons.arrow_upward
+                  _selectedOrderDim = 'descricao';
+                  _descricaoIcon =
+                  _descricaoIcon == Icons.arrow_upward
                       ? Icons.arrow_downward
                       : Icons.arrow_upward;
                   _siglaIcon = null;
                   _selectedOrder =
-                      _descricaoIcon == Icons.arrow_upward ? 'asc' : 'desc';
+                  _descricaoIcon == Icons.arrow_upward
+                      ? 'asc'
+                      : 'desc';
                 });
               },
             ),
@@ -339,17 +346,16 @@ class _BaseScreenState extends State<BaseScreen> {
           ListTile(
             title: const Text('Qualis'),
             trailing: IconButton(
-              icon: Icon(_descricaoIcon ?? Icons.arrow_upward,
-                  color: _descricaoIcon == null ? Colors.white : null),
+              icon: Icon(_QualisIcon ?? Icons.arrow_upward,
+                  color: _QualisIcon == null ? Colors.white : null),
               onPressed: () {
                 setState(() {
                   _selectedOrderDim = 'qualis_periodico';
-                  _descricaoIcon = _descricaoIcon == Icons.arrow_upward
+                  _QualisIcon = _QualisIcon == Icons.arrow_upward
                       ? Icons.arrow_downward
                       : Icons.arrow_upward;
                   _siglaIcon = null;
-                  _selectedOrder =
-                      _descricaoIcon == Icons.arrow_upward ? 'asc' : 'desc';
+                  _selectedOrder = _QualisIcon == Icons.arrow_upward ? 'asc' : 'desc';
                 });
               },
             ),
@@ -393,6 +399,7 @@ class _BaseScreenState extends State<BaseScreen> {
                       ? Icons.arrow_downward
                       : Icons.arrow_upward;
                   _descricaoIcon = null;
+                  _QualisIcon = null;
                   _selectedOrder =
                       _siglaIcon == Icons.arrow_upward ? 'asc' : 'desc';
                 });
@@ -418,37 +425,19 @@ class _BaseScreenState extends State<BaseScreen> {
             ),
           ),
           ListTile(
-            title: const Text('Qualis computação'),
-            trailing: IconButton(
-              icon: Icon(_descricaoIcon ?? Icons.arrow_upward,
-                  color: _descricaoIcon == null ? Colors.white : null),
-              onPressed: () {
-                setState(() {
-                  _selectedOrderDim = 'qualis_comp_todos';
-                  _descricaoIcon = _descricaoIcon == Icons.arrow_upward
-                      ? Icons.arrow_downward
-                      : Icons.arrow_upward;
-                  _siglaIcon = null;
-                  _selectedOrder =
-                      _descricaoIcon == Icons.arrow_upward ? 'asc' : 'desc';
-                });
-              },
-            ),
-          ),
-          ListTile(
             title: const Text('Qualis'),
             trailing: IconButton(
-              icon: Icon(_descricaoIcon ?? Icons.arrow_upward,
-                  color: _descricaoIcon == null ? Colors.white : null),
+              icon: Icon(_QualisIcon ?? Icons.arrow_upward,
+                  color: _QualisIcon == null ? Colors.white : null),
               onPressed: () {
                 setState(() {
                   _selectedOrderDim = 'qualis_todos';
-                  _descricaoIcon = _descricaoIcon == Icons.arrow_upward
+                  _QualisIcon = _QualisIcon == Icons.arrow_upward
                       ? Icons.arrow_downward
                       : Icons.arrow_upward;
                   _siglaIcon = null;
-                  _selectedOrder =
-                      _descricaoIcon == Icons.arrow_upward ? 'asc' : 'desc';
+                  _descricaoIcon = null;
+                  _selectedOrder = _QualisIcon == Icons.arrow_upward ? 'asc' : 'desc';
                 });
               },
             ),
@@ -465,6 +454,7 @@ class _BaseScreenState extends State<BaseScreen> {
                       ? Icons.arrow_downward
                       : Icons.arrow_upward;
                   _siglaIcon = null;
+                  _QualisIcon = null;
                   _selectedOrder =
                       _descricaoIcon == Icons.arrow_upward ? 'asc' : 'desc';
                 });
@@ -510,6 +500,7 @@ class _BaseScreenState extends State<BaseScreen> {
                       ? Icons.arrow_downward
                       : Icons.arrow_upward;
                   _descricaoIcon = null;
+                  _QualisIcon = null;
                   _selectedOrder =
                       _siglaIcon == Icons.arrow_upward ? 'asc' : 'desc';
                 });
@@ -537,17 +528,16 @@ class _BaseScreenState extends State<BaseScreen> {
           ListTile(
             title: const Text('Qualis'),
             trailing: IconButton(
-              icon: Icon(_descricaoIcon ?? Icons.arrow_upward,
-                  color: _descricaoIcon == null ? Colors.black : null),
+              icon: Icon(_QualisIcon ?? Icons.arrow_upward,
+                  color: _QualisIcon == null ? Colors.black : null),
               onPressed: () {
                 setState(() {
                   _selectedOrderDim = 'qualis';
-                  _descricaoIcon = _descricaoIcon == Icons.arrow_upward
+                  _QualisIcon = _QualisIcon == Icons.arrow_upward
                       ? Icons.arrow_downward
                       : Icons.arrow_upward;
                   _siglaIcon = null;
-                  _selectedOrder =
-                      _descricaoIcon == Icons.arrow_upward ? 'asc' : 'desc';
+                  _selectedOrder = _QualisIcon == Icons.arrow_upward ? 'asc' : 'desc';
                 });
               },
             ),
