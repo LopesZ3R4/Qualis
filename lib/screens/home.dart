@@ -355,14 +355,14 @@ class _BaseScreenState extends State<BaseScreen> {
                     return ListTile(
                       title: Text(qualificacao.description),
                       subtitle: Text(
-                          '${qualificacao.id} - Qualis: ${qualificacao.sigla}'),
+                          '${qualificacao.id} - Capes: ${qualificacao.sigla}'),
                     );
                   } else if (_title == 'Todos') {
                     return ListTile(
                       title: Text(qualificacao.description),
                       isThreeLine: true,
                       subtitle: Text(
-                        'Capes: ${qualificacao.id}\nQualis: ${qualificacao.quarto}\nArea: ${qualificacao.quinto}',
+                        'ISSN: ${qualificacao.id}\nQualis: ${qualificacao.quarto}\nArea: ${qualificacao.quinto}',
                       ),
                     );
                   }
